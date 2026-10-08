@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="Theme.Hander" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">#080D0F</item>
+        <item name="android:statusBarColor">#080D0F</item>
+        <item name="android:navigationBarColor">#080D0F</item>
+        <item name="android:windowSplashScreenAnimatedIcon" tools:targetApi="31">@mipmap/handerlogo_foreground</item>
+        <item name="android:windowSplashScreenBackground" tools:targetApi="31">#080D0F</item>
+    </style>
+
+</resources>

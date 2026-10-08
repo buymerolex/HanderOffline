@@ -1,0 +1,20 @@
+{
+  "format": "hander-repo",
+  "formatVersion": 1,
+  "name": "Hander Official",
+  "sources": [
+    {
+      "id": "gutenberg",
+      "name": "Project Gutenberg",
+      "version": "1.0.0",
+      "author": "Hander",
+      "language": "en",
+      "minHanderVersion": "1.0",
+      "adapter": "gutendex",
+      "capabilities": ["SEARCH", "BROWSE", "DETAILS", "CHAPTERS", "CONTENT", "COVER", "DOWNLOAD"],
+      "allowedHosts": ["gutendex.com", "www.gutenberg.org", "gutenberg.org"],
+      "testQuery": "pride and prejudice",
+      "config": { "baseUrl": "https://gutendex.com" }
+    }
+  ]
+}
