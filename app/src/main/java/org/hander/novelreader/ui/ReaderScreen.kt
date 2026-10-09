@@ -54,6 +54,7 @@ fun ReaderScreen(
 
     var showSettings by remember { mutableStateOf(false) }
     var showPicker by remember { mutableStateOf(false) }
+    var showChapters by remember { mutableStateOf(false) }
     var layout by remember { mutableStateOf<TextLayoutResult?>(null) }
     var viewportW by remember { mutableStateOf(0) }
     var selStart by remember { mutableStateOf(-1) }
@@ -228,12 +229,25 @@ fun ReaderScreen(
                 Text("‹", fontSize = 28.sp, color = HanderColors.Accent2)
             }
             Box(
-                Modifier.clip(RoundedCornerShape(50))
+                Modifier
+                    .widthIn(max = 220.dp)
+                    .clip(RoundedCornerShape(50))
                     .background(HanderColors.Panel)
-                    .clickable { showPicker = true }
+                    .clickable {
+                        if (ui.chapterTitles.isNotEmpty()) showChapters = true else showPicker = true
+                    }
                     .padding(horizontal = 18.dp, vertical = 8.dp)
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    if (ui.pageTitle.isNotBlank()) {
+                        Text(
+                            ui.pageTitle,
+                            color = HanderColors.Text,
+                            fontSize = 12.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                     Text(
                         "${ui.pageIndex + 1} / ${maxOf(1, ui.pageCount)}",
                         fontWeight = FontWeight.SemiBold, color = HanderColors.Gold, fontSize = 13.sp
@@ -254,6 +268,14 @@ fun ReaderScreen(
             vm.goToPage(page)
             showPicker = false
         }
+    }
+    if (showChapters) {
+        ChapterPickerDialog(
+            titles = ui.chapterTitles,
+            current = ui.pageIndex,
+            onPick = { vm.goToPage(it) },
+            onDismiss = { showChapters = false }
+        )
     }
 }
 

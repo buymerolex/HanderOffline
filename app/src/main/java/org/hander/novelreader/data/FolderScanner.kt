@@ -11,9 +11,10 @@ data class PdfFile(
     val uri: Uri,
     val title: String,
     val sizeBytes: Long,
+    val isEpub: Boolean = false,
 )
 
-/** Finds PDFs inside the folder the user picked (searches up to 3 levels deep). */
+/** Finds PDFs and EPUBs inside the folder the user picked (searches up to 3 levels deep). */
 object FolderScanner {
     private const val MAX_DEPTH = 3
 
@@ -33,8 +34,14 @@ object FolderScanner {
             val name = child.name ?: continue
             if (child.isDirectory) {
                 if (depth < MAX_DEPTH) collect(child, depth + 1, out)
-            } else if (child.isFile && name.endsWith(".pdf", ignoreCase = true)) {
-                out.add(PdfFile(child.uri, name.substring(0, name.length - 4), child.length()))
+            } else if (child.isFile) {
+                when {
+                    name.endsWith(".pdf", ignoreCase = true) ->
+                        out.add(PdfFile(child.uri, name.dropLast(4), child.length()))
+
+                    name.endsWith(".epub", ignoreCase = true) ->
+                        out.add(PdfFile(child.uri, name.dropLast(5), child.length(), isEpub = true))
+                }
             }
         }
     }

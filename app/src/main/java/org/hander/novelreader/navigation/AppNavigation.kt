@@ -143,6 +143,15 @@ fun HanderRoot(
                 HomeScreen(
                     library = library,
 
+                    files = files,
+
+                    onOpenFile = {
+                        openBook(
+                            it.uri.toString(),
+                            it.title
+                        )
+                    },
+
                     onOpen = {
                         openBook(
                             it.uri,

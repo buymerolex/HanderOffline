@@ -1,8 +1,5 @@
 package org.hander.novelreader.ui
 
-import android.graphics.Bitmap
-import android.graphics.Color as AColor
-import android.graphics.pdf.PdfRenderer
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -20,13 +17,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import org.hander.novelreader.data.LibraryState
 import org.hander.novelreader.data.LocalBook
 import org.hander.novelreader.data.PdfFile
@@ -42,7 +36,6 @@ fun OfflineScreen(
     onOpenPdf: (PdfFile) -> Unit,
     onToggleFavorite: (LocalBook) -> Unit
 ) {
-    val context = LocalContext.current
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
         if (uri != null) onFolderPicked(uri)
     }
@@ -65,7 +58,7 @@ fun OfflineScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        "LOCAL PDFs",
+                        "LOCAL BOOKS",
                         color = HanderColors.Accent2,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
@@ -94,7 +87,7 @@ fun OfflineScreen(
             if (library.folderUri == null) {
                 item {
                     Text(
-                        "Choose a folder on your device containing PDF novels or books.",
+                        "Choose a folder on your device containing PDF or EPUB novels.",
                         color = HanderColors.Border,
                         fontSize = 13.sp
                     )
@@ -107,11 +100,11 @@ fun OfflineScreen(
                 }
             } else if (files.isEmpty()) {
                 item {
-                    Text("No PDF files found in this folder.", color = HanderColors.Accent2, fontSize = 13.sp)
+                    Text("No PDF or EPUB files found in this folder.", color = HanderColors.Accent2, fontSize = 13.sp)
                 }
             } else {
                 items(files, key = { it.uri.toString() }) { file ->
-                    PdfRow(file, onOpenPdf)
+                    BookRow(file, onOpenPdf)
                 }
             }
 
@@ -157,30 +150,8 @@ fun OfflineScreen(
 }
 
 @Composable
-private fun PdfRow(file: PdfFile, onClick: (PdfFile) -> Unit) {
-    val context = LocalContext.current
-    var cover by remember(file.uri) { mutableStateOf<Bitmap?>(null) }
-
-    LaunchedEffect(file.uri) {
-        withContext(Dispatchers.IO) {
-            runCatching {
-                context.contentResolver.openFileDescriptor(file.uri, "r")?.use { pfd ->
-                    PdfRenderer(pfd).use { r ->
-                        if (r.pageCount > 0) {
-                            r.openPage(0).use { page ->
-                                val w = 240
-                                val h = (w * page.height.toFloat() / page.width).toInt().coerceAtLeast(1)
-                                val bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
-                                bmp.eraseColor(AColor.WHITE)
-                                page.render(bmp, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-                                cover = bmp
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+private fun BookRow(file: PdfFile, onClick: (PdfFile) -> Unit) {
+    val cover = rememberLocalCover(file)
 
     Row(
         Modifier
@@ -210,7 +181,12 @@ private fun PdfRow(file: PdfFile, onClick: (PdfFile) -> Unit) {
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
-            Text("${file.sizeBytes / 1024 / 1024} MB", color = HanderColors.Accent2, fontSize = 12.sp)
+            val size = "${maxOf(1L, file.sizeBytes / 1024 / 1024)} MB"
+            Text(
+                if (file.isEpub) "EPUB · $size" else "PDF · $size",
+                color = HanderColors.Accent2,
+                fontSize = 12.sp
+            )
         }
     }
 }

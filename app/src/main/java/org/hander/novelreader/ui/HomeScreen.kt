@@ -5,7 +5,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -19,12 +21,15 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import org.hander.novelreader.data.LibraryState
 import org.hander.novelreader.data.LocalBook
+import org.hander.novelreader.data.PdfFile
 import org.hander.novelreader.theme.HanderColors
 
 @Composable
 fun HomeScreen(
     library: LibraryState,
+    files: List<PdfFile>,
     onOpen: (LocalBook) -> Unit,
+    onOpenFile: (PdfFile) -> Unit,
     onBrowseLibraries: () -> Unit,
     onOpenOffline: () -> Unit
 ) {
@@ -32,7 +37,12 @@ fun HomeScreen(
     val favorites = library.favorites
     val continueReading = library.continueReading
 
-    Column(Modifier.fillMaxSize().padding(20.dp)) {
+    Column(
+        Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(20.dp)
+    ) {
         Text(
             "HANDER",
             color = HanderColors.Gold,
@@ -93,6 +103,15 @@ fun HomeScreen(
             EmptyHint("Tap the favorite icon on a book to keep it here.")
         } else {
             BookRow(favorites, onOpen)
+        }
+
+        Spacer(Modifier.height(28.dp))
+
+        if (files.isEmpty()) {
+            SectionTitle("Local")
+            EmptyHint("Choose a folder in Offline to see your PDF and EPUB books here.")
+        } else {
+            LocalBooksSection(files = files, onOpen = onOpenFile)
         }
 
         Spacer(Modifier.height(28.dp))

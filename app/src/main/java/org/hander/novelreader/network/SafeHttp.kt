@@ -15,13 +15,6 @@ import java.net.UnknownHostException
 import java.util.Locale
 import javax.net.ssl.SSLException
 
-/**
- * The ONLY way a source can reach the internet.
- * - https only
- * - only the websites the source declared in allowedHosts (null = any https site, used for repositories)
- * - redirects are re-checked against the same rules
- * - size limit, timeouts, friendly error messages
- */
 class SafeHttp(allowedHosts: Set<String>? = null) {
 
     private val allowed: Set<String>? = allowedHosts?.map { it.lowercase(Locale.ROOT) }?.toSet()
